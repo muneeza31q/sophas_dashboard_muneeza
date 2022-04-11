@@ -1,0 +1,62 @@
+---
+title: "Exploring SOPHAS Data Export"
+date: "2022-04-11 <br> Updated: `r Sys.Date()`"
+---
+
+# ⭐️Overview
+
+Just exploring the SOPHAS exported data. Eventually want to create a dashboard.
+
+
+# 📦Load packages
+
+```{r message=FALSE}
+library(dplyr, warn.conflicts = FALSE)
+library(readr)
+library(freqtables)
+```
+
+
+# 📥Import data 
+
+This data was created in...
+
+```{r}
+df <- read_csv("/Users/bradcannell/Library/CloudStorage/OneDrive-SharedLibraries-TheUniversityofTexasHealthScienceCenteratHouston/SPH Dallas Student Affairs Private - Documents/General/Data/SOPHAS Exports/verified_export.csv")
+```
+
+```{r}
+dim(df) # 109 152
+```
+
+
+# 🚧Data management
+
+```{r}
+
+```
+
+## 🧮Recode/calculate variables
+
+```{r}
+
+```
+
+
+# 📈Analysis
+
+```{r}
+df %>% 
+  freq_table(military_service_branch)
+```
+
+
+# 🗑Clean up
+
+```{r}
+rm(list = ls())
+```
+
+```{r echo=FALSE}
+sessionInfo()
+```
