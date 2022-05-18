@@ -22,7 +22,7 @@ library(freqtables)
 This data was created in...
 
 ```{r}
-df <- read_csv("/Users/bradcannell/Library/CloudStorage/OneDrive-SharedLibraries-TheUniversityofTexasHealthScienceCenteratHouston/SPH Dallas Student Affairs Private - Documents/General/Data/SOPHAS Exports/verified_export.csv")
+df <- read_csv("../Data/SOPHAS Exports/verified_export.csv")
 ```
 
 ```{r}

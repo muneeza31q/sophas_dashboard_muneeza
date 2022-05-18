@@ -1,0 +1,279 @@
+---
+title: "Explore SOPHAS Data"
+date: "2022-04-19 <br> Updated: `r Sys.Date()`"
+---
+
+# ⭐️Overview
+
+Just exploring the data that Griffin exported from SOPHAS. I'm not even sure what's in it at the moment. Eventually, we will want to use a better file structure. 
+
+
+# 📦Load packages
+
+```{r message=FALSE}
+library(dplyr, warn.conflicts = FALSE)
+library(meantables)
+library(freqtables)
+library(ggplot2)
+```
+
+
+# 📥Import data 
+
+These are all people who have applied. Not all of them have been accepted (very few of them have).
+
+Verified: Completed an application completely. If not verified, then they started an application, but may not have filled out anything.
+
+```{r}
+df <- readr::read_csv("data/Student Data Comma-Seperated Values.csv")
+```
+
+```{r}
+dim(df) # 228 467
+```
+
+
+# 🚧Data management
+
+For now, keep verified only.
+
+```{r}
+df <- df %>% 
+  filter(applicant_verified == "Yes")
+```
+
+```{r}
+dim(df) # 140 467
+```
+
+
+## 🧮Recode/calculate variables
+
+```{r}
+
+```
+
+
+# 📈Analysis
+
+## Age
+
+```{r}
+mean_table(df, age_at_submission)
+```
+
+```{r}
+df %>% 
+  filter(!is.na(age_at_submission)) %>% 
+  freq_table(age_at_submission) %>% 
+
+ggplot() +
+  geom_histogram(aes(x = cat, y = n), stat = "identity")
+```
+
+
+
+## Race and ethnicity
+
+Hispanic
+
+```{r}
+# Skip pattern for type of hispanic origin
+freq_table(df, race_hispanic)
+```
+
+```{r}
+# Use this
+freq_table(df, race_hispanic_yes_no_blank)
+```
+
+So, should blank be no?
+
+Military status
+
+```{r}
+freq_table(df, military_status)
+```
+
+Race
+
+```{r}
+df %>% 
+  select(cas_id, starts_with("race"))
+```
+
+We can make a combined variable later. For now, let's just see who considers themselves to be in each of the NIH race categories. 
+
+https://grants.nih.gov/grants/guide/notice-files/not-od-15-089.html
+
+American Indian or Alaska Native
+
+```{r}
+freq_table(df, race_american_indian)
+```
+
+Asian
+
+```{r}
+freq_table(df, race_asian)
+```
+
+Black or African American
+
+```{r}
+freq_table(df, race_black)
+```
+
+Native Hawaiian or Other Pacific Islander
+
+```{r}
+freq_table(df, race_pacific_islander)
+```
+
+White
+
+```{r}
+freq_table(df, race_white)
+```
+
+## Education
+
+College name
+
+Currently, this includes associates, bachelors, and graduate. There are variables we can use to filter though. 
+
+```{r}
+df %>% 
+  select(cas_id, starts_with("college_name")) %>% 
+  tidyr::pivot_longer(
+    cols = c(-cas_id),
+    names_to = c(".value", "order"),
+    names_prefix = "college_",
+    names_sep = "_"
+  ) %>% 
+  filter(!is.na(name)) %>% 
+  freq_table(name) %>% 
+  arrange(desc(n))
+```
+
+There's lots of other interesting college stuff. I'm moving on for now to see what else there is.
+
+## Address
+
+Current country
+
+```{r}
+df %>% 
+  freq_table(current_country_name) %>% 
+  arrange(desc(n))
+```
+
+Among those in the United States, what state?
+
+```{r}
+df %>% 
+  filter(current_country_name == "United States") %>% 
+  freq_table(current_state) %>% 
+  arrange(desc(n))
+```
+
+Among those in the United States, what postal code?
+
+```{r}
+df %>% 
+  filter(current_country_name == "United States") %>% 
+  freq_table(current_postal_code) %>% 
+  arrange(desc(n))
+```
+
+Map it? Need lat and long for zips, I think.
+
+```{r}
+# df %>% 
+#   filter(current_country_name == "United States") %>% 
+#   freq_table(current_postal_code) %>% 
+#   
+# ggplot() +
+#   geom_polygon(
+#     data = map_data("state"), 
+#     aes(x = long, y = lat, group = group), 
+#     color = 'gray', fill = NA, alpha = 0.35
+#   ) +
+#   geom_point(aes(color = n), size = .15, alpha = .25)
+```
+
+Among those in the Texas, what city?
+
+```{r}
+df %>% 
+  filter(current_state == "Texas") %>% 
+  freq_table(current_county) %>% 
+  arrange(desc(n))
+```
+
+Among those in the Texas, what city?
+
+```{r}
+df %>% 
+  filter(current_state == "Texas") %>% 
+  freq_table(current_city) %>% 
+  arrange(desc(n))
+```
+
+Permanent country
+
+```{r}
+df %>% 
+  freq_table(permanent_country_name) %>% 
+  arrange(desc(n))
+```
+
+Among those in the United States, what state?
+
+```{r}
+df %>% 
+  filter(permanent_country_name == "United States") %>% 
+  freq_table(permanent_state) %>% 
+  arrange(desc(n))
+```
+
+Among those in the United States, what postal code?
+
+```{r}
+df %>% 
+  filter(permanent_country_name == "United States") %>% 
+  freq_table(permanent_postal_code) %>% 
+  arrange(desc(n))
+```
+
+Among those in the Texas, what city?
+
+```{r}
+df %>% 
+  filter(permanent_state == "Texas") %>% 
+  freq_table(permanent_county) %>% 
+  arrange(desc(n))
+```
+
+Among those in the Texas, what city?
+
+```{r}
+df %>% 
+  filter(permanent_state == "Texas") %>% 
+  freq_table(permanent_city) %>% 
+  arrange(desc(n))
+```
+
+
+
+
+
+# 🗑Clean up
+
+```{r}
+rm(list = ls())
+```
+
+```{r echo=FALSE}
+sessionInfo()
+```
