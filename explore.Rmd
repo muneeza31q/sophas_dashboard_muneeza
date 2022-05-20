@@ -12,6 +12,7 @@ Just exploring the data that Griffin exported from SOPHAS. I'm not even sure wha
 
 ```{r message=FALSE}
 library(dplyr, warn.conflicts = FALSE)
+library(readr)
 library(meantables)
 library(freqtables)
 library(ggplot2)
@@ -24,6 +25,20 @@ These are all people who have applied. Not all of them have been accepted (very 
 
 Verified: Completed an application completely. If not verified, then they started an application, but may not have filled out anything.
 
+Eventually: Create a saved export on Webadmit and pull data directly from API. https://github.com/brad-cannell/sophas_dashboard/issues/1
+
+There are more notes about the data in NOTES.
+
+```{r}
+dallas_status <- read_csv("data/dallas_status.csv")
+```
+
+```{r}
+dim(dallas_status) # 220  24
+```
+
+Differs from the Webadmit dashboard by 2 people. Not sure why, and I don't have time to figure it our right now. 
+
 ```{r}
 df <- readr::read_csv("data/Student Data Comma-Seperated Values.csv")
 ```
@@ -35,7 +50,77 @@ dim(df) # 228 467
 
 # 🚧Data management
 
-For now, keep verified only.
+Here create filtered data frames. `dallas_status` contains information about everyone currently in the system for Dallas. This includes people with incomplete applications and people who are applying across multiple different semesters. 
+
+## All records by semester and year
+
+```{r}
+table(dallas_status$designation_program_start_year_0)
+```
+
+```{r}
+table(dallas_status$designation_program_start_term_0)
+```
+
+```{r}
+table(dallas_status$application_status_0, dallas_status$designation_program_start_term_0)
+```
+
+```{r}
+table(dallas_status$local_status_0, dallas_status$designation_program_start_term_0, useNA = "ifany")
+```
+
+Trying to figure out the relationship between applicant_verified, application_status, and local status.
+
+```{r}
+dallas_status <- dallas_status %>% 
+  mutate(applicant_verified_2 = if_else(is.na(applicant_verified), "No", applicant_verified))
+table(dallas_status$applicant_verified_2) %>% addmargins()
+```
+
+```{r}
+table(dallas_status$application_status_0) %>% addmargins()
+```
+
+
+```{r}
+table(dallas_status$local_status_0, useNA = "ifany") %>% addmargins()
+```
+
+
+```{r}
+table(
+  application_status = dallas_status$application_status_0, 
+  applicant_verified_2 = dallas_status$applicant_verified_2, 
+  useNA = "ifany"
+)
+```
+
+So, everyone with a verified for application_status also has verified for applicant_verified_2. However.
+
+I'm emailing Nathalie to see what these things mean.
+
+From Nathalie,  "Hi Dr. Cannell! Yeah, verified on SOPHAS just means that SOPHAS received all transcripts, at least 2 LORS, and payment. However, we still go in and double-check if WES is there, SOP, and the third LOR arrives. That's when we change the local status to state "ready for review" "However, we still only review applications with the local status "ready for review""
+
+```{r}
+dallas_status %>% filter(application_status_0 == "Deferral")
+```
+
+
+```{r}
+ds_2022_spring <- dallas_status %>% filter(designation_program_start_term_0 == "Spring")
+ds_2022_summer <- dallas_status %>% filter(designation_program_start_term_0 == "Summer")
+ds_2022_fall <- dallas_status %>% filter(designation_program_start_term_0 == "Fall")
+```
+
+The data are broken down by semester. Now, let's further filter by verified status. Remember that verified essentially means that they completed the entire application.
+
+```{r}
+ds_2022_spring_verified <- ds_2022_spring %>% filter(applicant_verified == "Yes")
+ds_2022_spring_unverified <- ds_2022_spring %>% filter(applicant_verified == "No")
+ds_2022_summer_verified <- ds_2022_summer %>% filter(applicant_verified == "Yes")
+ds_2022_fall_verified <- ds_2022_fall %>% filter(applicant_verified == "Yes")
+```
 
 ```{r}
 df <- df %>% 

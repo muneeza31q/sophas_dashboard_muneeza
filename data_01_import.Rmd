@@ -5,7 +5,7 @@ date: "2022-04-11 <br> Updated: `r Sys.Date()`"
 
 # ⭐️Overview
 
-Just exploring the SOPHAS exported data. Eventually want to create a dashboard.
+Import the data exported from SOPHAS. Eventually want to create a dashboard.
 
 
 # 📦Load packages
@@ -46,8 +46,7 @@ dim(df) # 109 152
 # 📈Analysis
 
 ```{r}
-df %>% 
-  freq_table(military_service_branch)
+
 ```
 
 
