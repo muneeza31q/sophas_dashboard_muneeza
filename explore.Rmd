@@ -12,6 +12,7 @@ Just exploring the data that Griffin exported from SOPHAS. I'm not even sure wha
 
 ```{r message=FALSE}
 library(dplyr, warn.conflicts = FALSE)
+library(tidyr)
 library(readr)
 library(meantables)
 library(freqtables)
@@ -362,3 +363,135 @@ rm(list = ls())
 ```{r echo=FALSE}
 sessionInfo()
 ```
+
+
+
+
+
+# 🗑Wrangle data to track metrics
+```{r}
+dallas_status <- read_csv("data/dallas_status.csv")
+# anything with 0 is the most recent/updated
+```
+
+Selecting columns that provides vital info
+```{r}
+dallas_status %>% 
+  select(cas_id, application_status_0, local_status_0, designation_0, designation_program_level_0, designation_program_level_0, designation_program_start_term_0, designation_program_type_0, decision_code_0, designation_label_0) %>% 
+  #freq_table(application_status_0) %>% 
+  arrange(desc(cas_id))
+```
+
+
+```{r}
+dallas_status %>% 
+  filter(application_status_0 == "Verified") %>% 
+  freq_table(application_status_0) %>% 
+  arrange(desc(n))
+```
+
+```{r}
+dallas_status %>% 
+  filter(application_status_0 == "In Progress") %>% 
+  freq_table(application_status_0) %>% 
+  arrange(desc(n))
+```
+
+```{r}
+dallas_status %>% 
+  filter(local_status_0 == "Accepted offer") %>% 
+  freq_table(local_status_0) %>% 
+  arrange(desc(n))
+```
+
+```{r}
+dallas_status %>% 
+  filter(application_status_0 == "Denied - Competition") %>% 
+  freq_table(application_status_0) %>% 
+  arrange(desc(n))
+```
+
+dallas_status
+require(dplyr)
+df1=as.table(dallas_status)
+df1
+aggregate('cas_id' ~ 'application_status_0', df1, length)
+```{r}
+dallas_status
+```
+
+
+```{r}
+table(dallas_status$'application_status_0')
+```
+
+
+```{r}
+#Sociodemographic: age, education, religion, employment, marital status, income levels, migration background, race, and ethnicity
+library(readr)
+library(data.table)
+Student_Data_Comma_Seperated_Values <- read_csv("Student_Data_Comma_Seperated_Values.csv")
+View(Sociodemo_2_)
+
+Student_Data_Comma_Seperated_Values %>% 
+  filter(race_hispanic_yes_no_blank == "Yes") %>% 
+  freq_table('race_hispanic_yes_no_blank') %>% 
+  arrange(desc(n))
+
+Student_Data_Comma_Seperated_Values %>% 
+  filter(race_asian == "Yes") %>% 
+  freq_table('race_asian') %>% 
+  arrange(desc(n))
+
+Student_Data_Comma_Seperated_Values %>% 
+  filter(race_black == "Yes") %>% 
+  freq_table('race_black') %>% 
+  arrange(desc(n))
+
+Student_Data_Comma_Seperated_Values %>% 
+  filter(race_american_indian == "Yes") %>% 
+  freq_table('race_american_indian') %>% 
+  arrange(desc(n))
+
+Student_Data_Comma_Seperated_Values %>% 
+  filter(race_white == "Yes") %>% 
+  freq_table('race_white') %>% 
+  arrange(desc(n))
+
+Student_Data_Comma_Seperated_Values %>% 
+  filter(race_pacific_islander == "Yes") %>% 
+  freq_table('race_pacific_islander') %>% 
+  arrange(desc(n))
+```
+
+```{r}
+#Gender
+data.table(Student_Data_Comma_Seperated_Values$'gender')
+#Sociodemo_2_$'gender'<-ifelse(Sociodemo_2_$'gender' =="Female",1,0)
+table(Student_Data_Comma_Seperated_Values$'gender')
+```
+
+```{r}
+#Designation
+table(Student_Data_Comma_Seperated_Values$designation_0)
+```
+
+```{r}
+#age at submission
+Student_Data_Comma_Seperated_Values%>%
+ replace_na(list('age_at_submission' = 0))
+Student_Data_Comma_Seperated_Values
+data.table(Student_Data_Comma_Seperated_Values$age_at_submission)
+mean(Student_Data_Comma_Seperated_Values$age_at_submission, na.rm=TRUE)
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+
